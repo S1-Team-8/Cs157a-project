@@ -3,7 +3,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 
 <%
-    Object ownerObj = session.getAttribute("owner_id");
+    Object ownerObj = session.getAttribute("id");
     String petName = request.getParameter("pet_name");
     String species = request.getParameter("species");
 

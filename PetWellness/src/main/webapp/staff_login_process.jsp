@@ -16,7 +16,7 @@
 %>
 
 <%
-    String loginInput = request.getParameter("login_id");
+    String username = request.getParameter("username");
     String password = request.getParameter("password");
 
     Connection conn = null;
@@ -24,34 +24,34 @@
     ResultSet rs = null;
 
     try {
-        if (loginInput == null || loginInput.trim().isEmpty() ||
+        if (username == null || username.trim().isEmpty() ||
             password == null || password.trim().isEmpty()) {
-            response.sendRedirect("login.jsp?error=2");
+            response.sendRedirect("staff_login.jsp?error=2");
             return;
         }
 
         String hashedPassword = hashPassword(password);
         conn = DBConnection.getConnection();
 
-        String sql = "SELECT owner_id, full_name, email " +
-                     "FROM pet_owner " +
-                     "WHERE (email = ? OR full_name = ?) AND password_hash = ?";
+        String sql = "SELECT employee_id, full_name, role, username " +
+                     "FROM staff " +
+                     "WHERE username = ? AND password_hash = ? AND is_active = TRUE";
 
         ps = conn.prepareStatement(sql);
-        ps.setString(1, loginInput.trim());
-        ps.setString(2, loginInput.trim());
-        ps.setString(3, hashedPassword);
+        ps.setString(1, username.trim());
+        ps.setString(2, hashedPassword);
 
         rs = ps.executeQuery();
 
         if (rs.next()) {
-            session.setAttribute("owner_id", rs.getInt("owner_id"));
-            session.setAttribute("owner_name", rs.getString("full_name"));
-            session.setAttribute("owner_email", rs.getString("email"));
-            response.sendRedirect("dashboard.jsp");
+            session.setAttribute("employee_id", rs.getInt("employee_id"));
+            session.setAttribute("staff_name", rs.getString("full_name"));
+            session.setAttribute("staff_role", rs.getString("role"));
+            session.setAttribute("staff_username", rs.getString("username"));
+            response.sendRedirect("hospital_dashboard.jsp");
             return;
         } else {
-            response.sendRedirect("login.jsp?error=1");
+            response.sendRedirect("staff_login.jsp?error=1");
             return;
         }
 

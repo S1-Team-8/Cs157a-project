@@ -3,7 +3,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Pet Owner Login - PetWellness</title>
+    <title>Staff Sign Up - PetWellness</title>
     <style>
         * { box-sizing: border-box; }
 
@@ -22,24 +22,39 @@
             padding: 40px 20px;
         }
 
-        .login-card {
+        .form-card {
             width: 100%;
-            max-width: 760px;
+            max-width: 820px;
             background: #ffffff;
             border-radius: 20px;
             box-shadow: 0 12px 35px rgba(0, 0, 0, 0.08);
-            padding: 40px 42px;
+            padding: 40px 45px;
         }
 
         .page-title {
-            margin: 0 0 28px 0;
+            margin: 0 0 10px 0;
             font-size: 42px;
             font-weight: 700;
             color: #2f5597;
         }
 
+        .page-subtitle {
+            margin: 0 0 28px 0;
+            font-size: 18px;
+            color: #5f6b7a;
+        }
+
+        .message {
+            font-size: 17px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .error { color: #c0392b; }
+        .success { color: #1f8f4d; }
+
         .form-group {
-            margin-bottom: 26px;
+            margin-bottom: 22px;
         }
 
         .form-group label {
@@ -91,37 +106,62 @@
             background: #dfe7f2;
             color: #2f5597;
         }
-
-        .error-message {
-            color: #c0392b;
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 20px;
-        }
     </style>
 </head>
 <body>
     <div class="page-wrapper">
-        <div class="login-card">
-            <h1 class="page-title">Pet Owner Login</h1>
+        <div class="form-card">
+            <h1 class="page-title">Staff Sign Up</h1>
+            <p class="page-subtitle">Create a staff account for the clinic system.</p>
 
             <%
                 String error = request.getParameter("error");
+                String success = request.getParameter("success");
+
                 if ("1".equals(error)) {
             %>
-                <div class="error-message">Invalid pet owner login credentials.</div>
+                <div class="message error">All fields are required.</div>
             <%
                 } else if ("2".equals(error)) {
             %>
-                <div class="error-message">Please enter both email/name and password.</div>
+                <div class="message error">That username already exists.</div>
+            <%
+                } else if ("3".equals(error)) {
+            %>
+                <div class="message error">Password must be at least 6 characters long.</div>
+            <%
+                } else if ("4".equals(error)) {
+            %>
+                <div class="message error">Something went wrong. Please try again.</div>
+            <%
+                } else if ("1".equals(success)) {
+            %>
+                <div class="message success">Staff account created successfully. Please log in.</div>
             <%
                 }
             %>
 
-            <form action="login_process.jsp" method="post">
+            <form action="staff_signup_process.jsp" method="post">
                 <div class="form-group">
-                    <label for="login_id">Email or Full Name</label>
-                    <input type="text" id="login_id" name="login_id" class="form-control" required>
+                    <label for="full_name">Full Name</label>
+                    <input type="text" id="full_name" name="full_name" class="form-control" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="role">Role</label>
+                    <select id="role" name="role" class="form-control" required>
+                        <option value="">Select role</option>
+                        <option value="Admin">Admin</option>
+                        <option value="Manager">Manager</option>
+                        <option value="Veterinarian">Veterinarian</option>
+                        <option value="Technician">Technician</option>
+                        <option value="Inventory Staff">Inventory Staff</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" class="form-control" required>
                 </div>
 
                 <div class="form-group">
@@ -130,7 +170,8 @@
                 </div>
 
                 <div class="button-row">
-                    <button type="submit" class="btn btn-primary">Login</button>
+                    <button type="submit" class="btn btn-primary">Create Staff Account</button>
+                    <a href="staff_login.jsp" class="btn btn-secondary">Staff Login</a>
                     <a href="index.jsp" class="btn btn-secondary">Back to Home</a>
                 </div>
             </form>

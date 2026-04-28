@@ -24,7 +24,7 @@
 
         conn = DBConnection.getConnection();
 
-        String sql = "INSERT INTO Procedure (visit_id, procedure_name, charge_amount, notes) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO procedure_record (visit_id, procedure_name, charge_amount, notes) VALUES (?, ?, ?, ?)";
         ps = conn.prepareStatement(sql);
         ps.setInt(1, visitId);
         ps.setString(2, procedureName.trim());

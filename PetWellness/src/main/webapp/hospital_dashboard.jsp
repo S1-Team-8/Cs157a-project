@@ -1,7 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%
-    if (session.getAttribute("owner_id") == null && session.getAttribute("staff_id") == null) {
-        response.sendRedirect("login.jsp");
+    if (session.getAttribute("employee_id") == null) {
+        response.sendRedirect("staff_login.jsp");
         return;
     }
 %>

@@ -3,7 +3,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Pet Owner Login - PetWellness</title>
+    <title>Staff Login - PetWellness</title>
     <style>
         * { box-sizing: border-box; }
 
@@ -103,30 +103,23 @@
 <body>
     <div class="page-wrapper">
         <div class="login-card">
-            <h1 class="page-title">Pet Owner Login</h1>
+            <h1 class="page-title">Staff Login</h1>
 
-            <%
-                String error = request.getParameter("error");
-                if ("1".equals(error)) {
-            %>
-                <div class="error-message">Invalid pet owner login credentials.</div>
-            <%
-                } else if ("2".equals(error)) {
-            %>
-                <div class="error-message">Please enter both email/name and password.</div>
-            <%
-                }
-            %>
+            <% if ("1".equals(request.getParameter("error"))) { %>
+                <div class="error-message">Invalid staff username or password.</div>
+            <% } else if ("2".equals(request.getParameter("error"))) { %>
+                <div class="error-message">Please enter both username and password.</div>
+            <% } %>
 
-            <form action="login_process.jsp" method="post">
+            <form action="staff_login_process.jsp" method="post">
                 <div class="form-group">
-                    <label for="login_id">Email or Full Name</label>
-                    <input type="text" id="login_id" name="login_id" class="form-control" required>
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" class="form-control" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" class="form-control" required>
+                    <label for="staff_password">Password</label>
+                    <input type="password" id="staff_password" name="password" class="form-control" required>
                 </div>
 
                 <div class="button-row">
