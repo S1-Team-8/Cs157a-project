@@ -7,3 +7,4 @@ Servers/
 .project
 *.log
 *.jar
+/bin/
