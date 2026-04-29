@@ -54,6 +54,7 @@
 
 		<a class ="btn" href="schedule_appointment.jsp">Schedule Appointment</a>
 		<a class ="btn" href="view_my_appointments.jsp">View My Appointments</a>
+		<a class="btn" href="search_clinic.jsp">Search Clinics</a>
 
 		<hr>
 
@@ -61,5 +62,7 @@
 		
         </div>
     </div>
+
+
 </body>
 </html>
