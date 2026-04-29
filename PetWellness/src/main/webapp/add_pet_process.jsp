@@ -1,5 +1,10 @@
+<<<<<<< Updated upstream
 <%@ page import="java.sql.*" %>
 <%@ page import="com.petwellness.util.DBConnection" %>
+=======
+ <%@ page import="javax.servlet.*,javax.servlet.http.*" %>
+<%@ page import="com.petwellness.service.PetService" %>
+>>>>>>> Stashed changes
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 
 <%
