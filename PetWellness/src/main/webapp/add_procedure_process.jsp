@@ -16,6 +16,8 @@
 
     int staffId = Integer.parseInt(session.getAttribute("employee_id").toString());
 
+    String apptIdStr       = request.getParameter("appointment_id");
+    if (apptIdStr == null) apptIdStr = "";
     String visitIdStr      = request.getParameter("visit_id");
     String procedureName   = request.getParameter("procedure_name");
     String chargeAmountStr = request.getParameter("charge_amount");
@@ -167,8 +169,8 @@
             <div class="alert alert-error" style="text-align:left;"><%= invDisplay %></div>
         <% } %>
         <div class="btn-row" style="justify-content:center;margin-top:20px;">
-            <a href="add_procedure.jsp?visit_id=<%= savedVisitId %>" class="btn btn-primary">Add Another Procedure</a>
-            <a href="view_procedures.jsp?visit_id=<%= savedVisitId %>" class="btn btn-secondary">View Procedures</a>
+            <a href="add_procedure.jsp?appointment_id=<%= apptIdStr %>" class="btn btn-primary">Add Another Procedure</a>
+            <a href="view_procedures.jsp?appointment_id=<%= apptIdStr %>" class="btn btn-secondary">View Procedures</a>
             <a href="hospital_dashboard.jsp" class="btn btn-secondary">Dashboard</a>
         </div>
     <% } else { %>

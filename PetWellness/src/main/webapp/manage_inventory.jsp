@@ -9,7 +9,7 @@
     }
     String _role = (String) session.getAttribute("staff_role");
     if (_role == null) _role = "";
-    if (!"Admin".equals(_role) && !"Manager".equals(_role) && !"Inventory Staff".equals(_role)) {
+    if (!"Admin".equals(_role) && !"Manager".equals(_role)) {
         response.sendRedirect("hospital_dashboard.jsp");
         return;
     }

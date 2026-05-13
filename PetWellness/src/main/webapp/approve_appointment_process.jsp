@@ -43,6 +43,14 @@
         if (rows == 0) {
             response.sendRedirect("view_appointments.jsp?msg=error");
         } else {
+            // Create the visit record now so technicians can record vitals before completion
+            PreparedStatement vstmt = conn.prepareStatement(
+                "INSERT IGNORE INTO visit (pet_id, vet_id, visit_date, notes, service_id) " +
+                "SELECT a.pet_id, a.vet_id, a.appointment_date, NULL, a.service_id " +
+                "FROM appointment a WHERE a.appointment_id = ? AND a.vet_id IS NOT NULL");
+            vstmt.setInt(1, apptId);
+            vstmt.executeUpdate();
+            vstmt.close();
             response.sendRedirect("view_appointments.jsp?msg=approved");
         }
     } catch (Exception e) {

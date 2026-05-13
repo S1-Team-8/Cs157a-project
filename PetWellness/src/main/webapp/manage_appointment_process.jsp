@@ -51,24 +51,6 @@
 
             int appointmentId = Integer.parseInt(apptIdStr);
             AppointmentService.updateAppointmentStatus(appointmentId, status);
-
-            // When completed, auto-create a visit record for patient history
-            if ("Completed".equals(status)) {
-                java.sql.Connection _ac = com.petwellness.util.DBConnection.getConnection();
-                java.sql.PreparedStatement _as = null;
-                try {
-                    _as = _ac.prepareStatement(
-                        "INSERT INTO visit (pet_id, vet_id, visit_date, notes, service_id) " +
-                        "SELECT a.pet_id, a.vet_id, a.appointment_date, NULL, a.service_id " +
-                        "FROM appointment a " +
-                        "WHERE a.appointment_id = ? AND a.vet_id IS NOT NULL");
-                    _as.setInt(1, appointmentId);
-                    _as.executeUpdate();
-                } finally {
-                    try { if (_as != null) _as.close(); } catch (Exception e) {}
-                    try { _ac.close(); } catch (Exception e) {}
-                }
-            }
             success = true;
 
         } else {

@@ -268,7 +268,7 @@
                             <input type="hidden" name="appointment_id" value="<%= apptId %>">
                             <input type="hidden" name="status"         value="Completed">
                             <button type="submit" class="btn btn-success btn-sm"
-                                    onclick="return confirm('Mark as completed? A visit record will be created.')">Complete</button>
+                                    onclick="return confirm('Mark this appointment as completed?')">Complete</button>
                         </form>
                         <form action="manage_appointment_process.jsp" method="post" style="display:inline;">
                             <input type="hidden" name="action_type"    value="update">

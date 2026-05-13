@@ -56,7 +56,6 @@
                     <option value="Manager">Manager — reports, appointments, inventory</option>
                     <option value="Veterinarian">Veterinarian — visits, procedures, appointments</option>
                     <option value="Technician">Technician — vitals, visit support logs</option>
-                    <option value="Inventory Staff">Inventory Staff — inventory management</option>
                 </select>
                 <p class="form-hint">Your role determines which sections you can access.</p>
             </div>

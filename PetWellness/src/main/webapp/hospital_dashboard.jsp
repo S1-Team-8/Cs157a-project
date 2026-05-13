@@ -16,7 +16,6 @@
     boolean isManager  = "Manager".equals(staffRole);
     boolean isVet      = "Veterinarian".equals(staffRole);
     boolean isTech     = "Technician".equals(staffRole);
-    boolean isInvStaff = "Inventory Staff".equals(staffRole);
 
     // KPI counts — fail silently if DB is unavailable
     int todayAppointments = 0, totalPets = 0, lowStockCount = 0, pendingRequests = 0;
@@ -53,10 +52,10 @@
     <div class="brand"><a href="hospital_dashboard.jsp">🐾 PetWellness</a></div>
     <div class="nav-links">
         <a href="hospital_dashboard.jsp" class="nav-active">Dashboard</a>
-        <% if (isAdmin || isManager || isVet) { %>
+        <% if (isAdmin || isManager || isVet || isTech) { %>
             <a href="view_appointments.jsp">Appointments</a>
         <% } %>
-        <% if (isAdmin || isManager || isInvStaff) { %>
+        <% if (isAdmin || isManager) { %>
             <a href="manage_inventory.jsp">Inventory</a>
         <% } %>
         <% if (isAdmin || isManager) { %>
@@ -77,7 +76,7 @@
 
     <!-- KPI strip -->
     <div class="kpi-grid" style="margin-bottom:28px;">
-        <% if (isAdmin || isManager || isVet) { %>
+        <% if (isAdmin || isManager || isVet || isTech) { %>
         <a href="view_appointments.jsp?status=Pending" style="text-decoration:none;">
         <div class="kpi-card <%= pendingRequests > 0 ? "kpi-warning" : "" %>" style="cursor:pointer;">
             <div class="kpi-label">Pending Requests</div>
@@ -99,7 +98,7 @@
         </div>
         </a>
         <% } %>
-        <% if (isAdmin || isManager || isInvStaff) { %>
+        <% if (isAdmin || isManager) { %>
         <a href="inventory_report.jsp" style="text-decoration:none;">
         <div class="kpi-card <%= lowStockCount > 0 ? "kpi-danger" : "kpi-success" %>" style="cursor:pointer;">
             <div class="kpi-label">Low-Stock Items</div>
@@ -110,7 +109,7 @@
     </div>
 
     <%-- ── Upcoming Appointments preview ─────────────────────────────────── --%>
-    <% if (isAdmin || isManager || isVet) { %>
+    <% if (isAdmin || isManager || isVet || isTech) { %>
     <div class="dashboard-preview">
         <div class="dashboard-preview-header">
             <span class="dashboard-preview-title">📅 Upcoming Appointments</span>
@@ -255,16 +254,13 @@
             <div class="dashboard-section-title">
                 <span class="dashboard-section-icon">📋</span> Visits &amp; Patient Records
             </div>
-            <p class="section-desc">Record clinical visits and review full patient histories.</p>
-            <% if (isAdmin || isVet) { %>
-                <a class="btn btn-primary btn-block" href="hospital_add_visit.jsp">Create Visit Record</a>
-            <% } %>
+            <p class="section-desc">Review full patient histories, recorded procedures and vitals.</p>
             <a class="section-btn" href="hospital_view_visits.jsp">View Patient History</a>
         </div>
         <% } %>
 
         <%-- ── Appointments ──────────────────────────────────────────────── --%>
-        <% if (isAdmin || isManager || isVet) { %>
+        <% if (isAdmin || isManager || isVet || isTech) { %>
         <div class="dashboard-section">
             <div class="dashboard-section-title">
                 <span class="dashboard-section-icon">📅</span> Appointments
@@ -278,7 +274,7 @@
         <% } %>
 
         <%-- ── Procedures & Clinical Support ──────────────────────────────── --%>
-        <% if (isAdmin || isVet || isTech) { %>
+        <% if (isAdmin || isManager || isVet || isTech) { %>
         <div class="dashboard-section">
             <div class="dashboard-section-title">
                 <span class="dashboard-section-icon">💉</span> Procedures &amp; Clinical Support
@@ -286,6 +282,8 @@
             <p class="section-desc">Log treatments, charges, and technician vitals for each visit.</p>
             <% if (isAdmin || isVet) { %>
                 <a class="btn btn-primary btn-block" href="add_procedure.jsp">Add Procedure / Treatment</a>
+            <% } %>
+            <% if (isAdmin || isManager || isVet || isTech) { %>
                 <a class="section-btn" href="view_procedures.jsp">View Procedures for a Visit</a>
             <% } %>
             <% if (isAdmin || isTech) { %>
@@ -295,13 +293,13 @@
         <% } %>
 
         <%-- ── Inventory ─────────────────────────────────────────────────── --%>
-        <% if (isAdmin || isManager || isInvStaff) { %>
+        <% if (isAdmin || isManager) { %>
         <div class="dashboard-section">
             <div class="dashboard-section-title">
                 <span class="dashboard-section-icon">📦</span> Inventory
             </div>
             <p class="section-desc">Monitor stock levels and flag items below the reorder threshold.</p>
-            <% if (isAdmin || isInvStaff) { %>
+            <% if (isAdmin || isManager) { %>
                 <a class="btn btn-primary btn-block" href="manage_inventory.jsp">Manage Inventory</a>
             <% } %>
             <a class="section-btn" href="inventory_report.jsp">Low-Stock Report</a>

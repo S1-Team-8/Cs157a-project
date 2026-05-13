@@ -1,8 +1,7 @@
 <%@ page import="java.sql.*" %>
+<%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.List" %>
 <%@ page import="com.petwellness.util.DBConnection" %>
-<%@ page import="com.petwellness.service.ViewProcedureService" %>
-<%@ page import="com.petwellness.service.ViewProcedureService.ProcedureRecord" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%
     if (session.getAttribute("employee_id") == null) {
@@ -22,7 +21,7 @@
 
     String apptIdStr = request.getParameter("appointment_id");
     if (apptIdStr == null) apptIdStr = "";
-    // Fallback: visit_id passed directly (walk-in visit)
+    // Fallback: visit_id passed directly
     String directVisitId = request.getParameter("visit_id");
     if (apptIdStr.isEmpty() && directVisitId != null && !directVisitId.isEmpty()) {
         Connection _fbc = null; PreparedStatement _fbp = null; ResultSet _fbr = null;
@@ -41,13 +40,12 @@
         finally { try { if (_fbc != null) _fbc.close(); } catch (Exception e) {} }
     }
 
-    List<ProcedureRecord> procedures = null;
     String contextPetName  = null;
     String contextService  = null;
     String contextDate     = null;
     String contextVetName  = null;
     int    resolvedVisitId = -1;
-    double totalCharge     = 0.0;
+    List<Object[]> vitalsLogs = new ArrayList<>();
 
     if (!apptIdStr.isEmpty()) {
         Connection _cc = null; PreparedStatement _cp = null; ResultSet _cr = null;
@@ -77,15 +75,27 @@
             _cr.close(); _cp.close();
 
             if (resolvedVisitId > 0) {
-                procedures = ViewProcedureService.getProceduresByVisitId(resolvedVisitId);
-                if (procedures != null) {
-                    for (ProcedureRecord p : procedures) totalCharge += p.getChargeAmount();
+                _cp = _cc.prepareStatement(
+                    "SELECT vsl.weight, vsl.temperature, vsl.notes, vsl.log_time, " +
+                    "st.full_name AS tech_name " +
+                    "FROM visit_support_log vsl " +
+                    "LEFT JOIN staff st ON vsl.technician_id = st.employee_id " +
+                    "WHERE vsl.visit_id = ? ORDER BY vsl.log_time");
+                _cp.setInt(1, resolvedVisitId);
+                _cr = _cp.executeQuery();
+                while (_cr.next()) {
+                    vitalsLogs.add(new Object[]{
+                        _cr.getObject("weight"),
+                        _cr.getObject("temperature"),
+                        _cr.getString("notes"),
+                        _cr.getString("log_time"),
+                        _cr.getString("tech_name")
+                    });
                 }
+                _cr.close(); _cp.close();
             }
-        } catch (Exception e) { /* load failure */ }
-        finally {
-            try { if (_cc != null) _cc.close(); } catch (Exception e) {}
-        }
+        } catch (Exception e) {}
+        finally { try { if (_cc != null) _cc.close(); } catch (Exception e) {} }
     }
 %>
 <!DOCTYPE html>
@@ -93,7 +103,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>View Procedures — PetWellness</title>
+    <title>View Vitals — PetWellness</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -117,16 +127,16 @@
 <div class="card-lg">
 <div class="card">
 
-    <h1 class="page-title">Procedures for a Visit</h1>
-    <p class="page-subtitle">Select a completed appointment to view all recorded procedures and charges.</p>
+    <h1 class="page-title">Technician Vitals for a Visit</h1>
+    <p class="page-subtitle">Select a scheduled or completed appointment to view all recorded vitals and notes.</p>
     <hr class="divider">
 
     <!-- Appointment selector -->
     <div class="form-group">
         <label for="appt_select">Appointment</label>
         <select id="appt_select" class="form-control"
-                onchange="if(this.value) window.location='view_procedures.jsp?appointment_id='+this.value;">
-            <option value="">— Select a completed appointment —</option>
+                onchange="if(this.value) window.location='view_vitals.jsp?appointment_id='+this.value;">
+            <option value="">— Select an appointment —</option>
             <%
                 Connection _sc = null; PreparedStatement _sp = null; ResultSet _sr = null;
                 try {
@@ -176,33 +186,31 @@
             &nbsp;·&nbsp; Dr. <%= contextVetName != null ? contextVetName : "—" %>
         </div>
 
-        <% if (procedures == null || procedures.isEmpty()) { %>
-            <p class="text-muted" style="padding:16px 0;font-style:italic;">No procedures recorded for this appointment yet.</p>
+        <% if (vitalsLogs.isEmpty()) { %>
+            <p class="text-muted" style="padding:16px 0;font-style:italic;">No vitals recorded for this visit yet.</p>
         <% } else { %>
         <table class="data-table">
             <thead>
                 <tr>
-                    <th>Procedure</th>
+                    <th>Time</th>
+                    <th>Technician</th>
+                    <th>Weight (lbs)</th>
+                    <th>Temp (&deg;F)</th>
                     <th>Notes</th>
-                    <th>Charge</th>
                 </tr>
             </thead>
             <tbody>
-            <% for (ProcedureRecord proc : procedures) {
-                   String notes = proc.getNotes(); if (notes == null) notes = "—"; %>
+            <% for (Object[] log : vitalsLogs) {
+                   String logNotes = (String) log[2]; if (logNotes == null || logNotes.isEmpty()) logNotes = "—"; %>
                 <tr>
-                    <td><strong><%= proc.getProcedureName() %></strong></td>
-                    <td><%= notes %></td>
-                    <td style="color:var(--success);font-weight:600;">$<%= String.format("%.2f", proc.getChargeAmount()) %></td>
+                    <td style="font-size:13px;"><%= log[3] %></td>
+                    <td><%= log[4] != null ? log[4] : "—" %></td>
+                    <td><%= log[0] != null ? log[0] : "—" %></td>
+                    <td><%= log[1] != null ? log[1] : "—" %></td>
+                    <td><%= logNotes %></td>
                 </tr>
             <% } %>
             </tbody>
-            <tfoot>
-                <tr>
-                    <td colspan="2" style="text-align:right;font-weight:700;padding:12px 14px;">Total</td>
-                    <td style="font-weight:700;color:var(--success);padding:12px 14px;">$<%= String.format("%.2f", totalCharge) %></td>
-                </tr>
-            </tfoot>
         </table>
         <% } %>
     <%  }

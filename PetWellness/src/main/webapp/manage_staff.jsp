@@ -18,12 +18,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Staff — PetWellness</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-        /* Compact role select + update button inline */
-        .role-form { display: flex; flex-direction: column; gap: 6px; align-items: center; }
-        .role-select { padding: 6px 10px; border: 1.5px solid var(--border); border-radius: 8px;
-                       font-size: 13px; color: var(--text); background: #fff; cursor: pointer; }
-    </style>
 </head>
 <body>
 
@@ -98,7 +92,6 @@
                             <option value="Manager"         <%= "Manager".equals(role)         ? "selected" : "" %>>Manager</option>
                             <option value="Veterinarian"    <%= "Veterinarian".equals(role)    ? "selected" : "" %>>Veterinarian</option>
                             <option value="Technician"      <%= "Technician".equals(role)      ? "selected" : "" %>>Technician</option>
-                            <option value="Inventory Staff" <%= "Inventory Staff".equals(role) ? "selected" : "" %>>Inventory Staff</option>
                         </select>
                         <button type="submit" class="btn btn-primary btn-sm">Update</button>
                     </form>

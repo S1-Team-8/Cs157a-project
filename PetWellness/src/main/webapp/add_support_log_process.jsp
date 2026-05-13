@@ -15,7 +15,9 @@
 
     boolean success = false;
     String errorMsg = "";
-    String visitIdStr = request.getParameter("visit_id");
+    String visitIdStr    = request.getParameter("visit_id");
+    String apptIdStr     = request.getParameter("appointment_id");
+    if (apptIdStr == null) apptIdStr = "";
 
     try {
         String techIdStr    = request.getParameter("technician_id");
@@ -73,7 +75,8 @@
         <h1 class="page-title">Log Saved</h1>
         <p class="page-subtitle">Technician support log has been recorded successfully.</p>
         <div class="btn-row" style="justify-content:center;">
-            <a href="add_support_log.jsp?visit_id=<%= visitIdStr %>" class="btn btn-primary">Add Another Log</a>
+            <a href="add_support_log.jsp?appointment_id=<%= apptIdStr %>" class="btn btn-primary">Add Another Log</a>
+            <a href="hospital_view_visits.jsp" class="btn btn-secondary">Patient History</a>
             <a href="hospital_dashboard.jsp" class="btn btn-secondary">Back to Dashboard</a>
         </div>
     <% } else { %>

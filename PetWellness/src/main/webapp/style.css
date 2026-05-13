@@ -819,6 +819,26 @@ table.data-table tr.low-stock td {
 .success { color: var(--success); font-weight: bold; }
 
 /* ═══════════════════════════════════════════════
+   MANAGE STAFF — role update inline form
+   ═══════════════════════════════════════════════ */
+.role-form {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+}
+
+.role-select {
+    padding: 6px 10px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--text);
+    background: #fff;
+    cursor: pointer;
+}
+
+/* ═══════════════════════════════════════════════
    RESPONSIVE
    ═══════════════════════════════════════════════ */
 @media (max-width: 900px) {

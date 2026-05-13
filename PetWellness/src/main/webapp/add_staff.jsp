@@ -8,7 +8,6 @@
     if (staffRole == null) staffRole = "";
     boolean isAdmin    = "Admin".equals(staffRole);
     boolean isManager  = "Manager".equals(staffRole);
-    boolean isInvStaff = "Inventory Staff".equals(staffRole);
     if (!isAdmin) {
         response.sendRedirect("hospital_dashboard.jsp");
         return;
@@ -28,7 +27,7 @@
     <div class="brand"><a href="hospital_dashboard.jsp">🐾 PetWellness</a></div>
     <div class="nav-links">
         <a href="hospital_dashboard.jsp">Dashboard</a>
-        <% if (isAdmin || isManager || isInvStaff) { %>
+        <% if (isAdmin || isManager) { %>
             <a href="manage_inventory.jsp">Inventory</a>
         <% } %>
         <% if (isAdmin || isManager) { %>
@@ -63,7 +62,6 @@
                     <option value="Manager">Manager — reports, appointments, inventory</option>
                     <option value="Veterinarian">Veterinarian — visits, procedures, appointments</option>
                     <option value="Technician">Technician — vitals, visit support logs</option>
-                    <option value="Inventory Staff">Inventory Staff — inventory management</option>
                 </select>
                 <p class="form-hint">Role determines which sections the staff member can access after login.</p>
             </div>
