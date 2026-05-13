@@ -84,7 +84,9 @@
                 String species = rs.getString("species");
 
                 String badgeClass = "badge-scheduled";
-                if ("Pending".equals(status))    badgeClass = "badge-noshow";
+                if ("Pending".equals(status))        badgeClass = "badge-noshow";
+                else if ("Recorded".equals(status))  badgeClass = "badge-recorded";
+                else if ("Treated".equals(status))   badgeClass = "badge-treated";
                 else if ("Completed".equals(status)) badgeClass = "badge-completed";
                 else if ("Canceled".equals(status))  badgeClass = "badge-canceled";
                 else if ("No-show".equals(status))   badgeClass = "badge-canceled";

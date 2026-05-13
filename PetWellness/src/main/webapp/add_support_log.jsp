@@ -39,7 +39,7 @@
                 "LEFT JOIN visit v ON v.pet_id = a.pet_id " +
                 "    AND v.vet_id = a.vet_id " +
                 "    AND DATE(v.visit_date) = DATE(a.appointment_date) " +
-                "WHERE a.appointment_id = ? AND a.status = 'Scheduled' LIMIT 1");
+                "WHERE a.appointment_id = ? AND a.status IN ('Scheduled','Recorded') LIMIT 1");
             _cp.setInt(1, apptId);
             _cr = _cp.executeQuery();
             if (_cr.next()) {
@@ -104,7 +104,7 @@
                         "JOIN pet p ON a.pet_id = p.pet_id " +
                         "JOIN pet_owner o ON p.owner_id = o.owner_id " +
                         "LEFT JOIN service_catalog sc ON a.service_id = sc.service_id " +
-                        "WHERE a.status = 'Scheduled' " +
+                        "WHERE a.status IN ('Scheduled','Recorded') " +
                         "ORDER BY a.appointment_date DESC LIMIT 100");
                     _sr = _sp.executeQuery();
                     while (_sr.next()) {
@@ -142,7 +142,7 @@
     </div>
     <% } else if (!apptIdStr.isEmpty()) { %>
         <div class="alert alert-error">
-            No scheduled visit found for appointment #<%= apptIdStr %>.
+            No active visit found for appointment #<%= apptIdStr %>.
             Ensure the appointment has been approved (Scheduled) with a vet assigned.
         </div>
     <% } %>

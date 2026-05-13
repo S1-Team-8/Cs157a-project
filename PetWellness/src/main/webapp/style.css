@@ -434,6 +434,8 @@ table.data-table tr.low-stock td {
 }
 
 .badge-scheduled { background: var(--info-bg);    color: var(--info); }
+.badge-recorded  { background: #e8f6f3;           color: #0d9488; }
+.badge-treated   { background: #f3f0fb;           color: #7c3aed; }
 .badge-completed  { background: var(--success-bg); color: var(--success); }
 .badge-canceled   { background: var(--danger-bg);  color: var(--danger); }
 .badge-noshow     { background: var(--warning-bg); color: var(--warning); }

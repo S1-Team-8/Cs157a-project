@@ -21,8 +21,8 @@
     }
     boolean canManage = isAdmin || isManager;
 
-    // status filter: "active" (default) = Pending + Scheduled; "all"; or specific status
-    String[] validStatuses = {"active","all","Pending","Scheduled","Completed","Canceled","No-show"};
+    // status filter: "active" (default) = all in-progress statuses; "all"; or specific status
+    String[] validStatuses = {"active","all","Pending","Scheduled","Recorded","Treated","Completed","Canceled","No-show"};
     String statusFilter = request.getParameter("status");
     boolean validFilter = false;
     if (statusFilter != null) {
@@ -166,8 +166,8 @@
           style="display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap;">
         <label style="font-weight:600;font-size:14px;">Show:</label>
         <%
-            String[] filterLabels = {"active","all","Pending","Scheduled","Completed","Canceled","No-show"};
-            String[] filterDisplay = {"Pending + Scheduled","All","Pending","Scheduled","Completed","Canceled","No-show"};
+            String[] filterLabels = {"active","all","Pending","Scheduled","Recorded","Treated","Completed","Canceled","No-show"};
+            String[] filterDisplay = {"Active","All","Pending","Scheduled","Recorded","Treated","Completed","Canceled","No-show"};
             for (int fi = 0; fi < filterLabels.length; fi++) {
                 boolean sel = filterLabels[fi].equals(statusFilter);
         %>
@@ -201,7 +201,7 @@
 
                 String whereClause;
                 if ("active".equals(statusFilter)) {
-                    whereClause = "WHERE a.status IN ('Pending','Scheduled')";
+                    whereClause = "WHERE a.status IN ('Pending','Scheduled','Recorded','Treated')";
                 } else if ("all".equals(statusFilter)) {
                     whereClause = "";
                 } else {
@@ -228,7 +228,9 @@
                     String svcName  = rs.getString("service_name");
 
                     String badgeClass = "badge-scheduled";
-                    if ("Pending".equals(status))   badgeClass = "badge-noshow";
+                    if ("Pending".equals(status))        badgeClass = "badge-noshow";
+                    else if ("Recorded".equals(status))  badgeClass = "badge-recorded";
+                    else if ("Treated".equals(status))   badgeClass = "badge-treated";
                     else if ("Completed".equals(status)) badgeClass = "badge-completed";
                     else if ("Canceled".equals(status))  badgeClass = "badge-canceled";
                     else if ("No-show".equals(status))   badgeClass = "badge-noshow";
@@ -262,7 +264,21 @@
                             <button type="submit" class="btn btn-danger btn-sm"
                                     onclick="return confirm('Decline this request?')">Decline</button>
                         </form>
-                    <% } else if ("Scheduled".equals(status)) { %>
+                    <% } else if ("Scheduled".equals(status) || "Recorded".equals(status)) { %>
+                        <form action="manage_appointment_process.jsp" method="post" style="display:inline;">
+                            <input type="hidden" name="action_type"    value="update">
+                            <input type="hidden" name="appointment_id" value="<%= apptId %>">
+                            <input type="hidden" name="status"         value="Canceled">
+                            <button type="submit" class="btn btn-danger btn-sm"
+                                    onclick="return confirm('Cancel this appointment?')">Cancel</button>
+                        </form>
+                        <form action="manage_appointment_process.jsp" method="post" style="display:inline;">
+                            <input type="hidden" name="action_type"    value="update">
+                            <input type="hidden" name="appointment_id" value="<%= apptId %>">
+                            <input type="hidden" name="status"         value="No-show">
+                            <button type="submit" class="btn btn-secondary btn-sm">No-show</button>
+                        </form>
+                    <% } else if ("Treated".equals(status)) { %>
                         <form action="manage_appointment_process.jsp" method="post" style="display:inline;">
                             <input type="hidden" name="action_type"    value="update">
                             <input type="hidden" name="appointment_id" value="<%= apptId %>">

@@ -69,7 +69,7 @@
                 "LEFT JOIN visit v ON v.pet_id = a.pet_id " +
                 "    AND v.vet_id = a.vet_id " +
                 "    AND DATE(v.visit_date) = DATE(a.appointment_date) " +
-                "WHERE a.appointment_id = ? AND a.status = 'Scheduled' " +
+                "WHERE a.appointment_id = ? AND a.status = 'Recorded' " +
                 "LIMIT 1");
             _cp.setInt(1, apptId);
             _cr = _cp.executeQuery();
@@ -137,7 +137,7 @@
 <div class="card">
 
     <h1 class="page-title">Add Procedure / Treatment</h1>
-    <p class="page-subtitle">Select a scheduled appointment, review technician vitals, then record the procedure.</p>
+    <p class="page-subtitle">Select a recorded appointment (vitals on file), review technician vitals, then record the procedure.</p>
     <hr class="divider">
 
     <!-- Step 1: Appointment selector -->
@@ -159,7 +159,7 @@
                         "JOIN pet_owner o ON p.owner_id = o.owner_id " +
                         "LEFT JOIN service_catalog sc ON a.service_id = sc.service_id " +
                         "LEFT JOIN staff s ON a.vet_id = s.employee_id " +
-                        "WHERE a.status = 'Scheduled' " +
+                        "WHERE a.status = 'Recorded' " +
                         "ORDER BY a.appointment_date DESC LIMIT 100");
                     _sr = _sp.executeQuery();
                     while (_sr.next()) {
@@ -233,8 +233,8 @@
     </div>
     <% } else if (!apptIdStr.isEmpty()) { %>
         <div class="alert alert-error">
-            No scheduled visit found for appointment #<%= apptIdStr %>.
-            The appointment may not have been approved yet — ensure it is Scheduled with a vet assigned.
+            No recorded visit found for appointment #<%= apptIdStr %>.
+            Ensure the appointment is in Recorded status — a technician must log vitals before treatment.
         </div>
     <% } %>
 

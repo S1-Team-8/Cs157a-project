@@ -1,4 +1,6 @@
 <%@ page import="com.petwellness.service.SupportLogService" %>
+<%@ page import="java.sql.*" %>
+<%@ page import="com.petwellness.util.DBConnection" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 
 <%
@@ -36,6 +38,18 @@
         Double temperature = (tempStr   != null && !tempStr.trim().isEmpty())   ? Double.parseDouble(tempStr.trim())   : null;
 
         SupportLogService.addSupportLog(visitId, technicianId, weight, temperature, notes);
+
+        // Advance appointment status: Scheduled → Recorded
+        if (!apptIdStr.isEmpty()) {
+            Connection _ac = DBConnection.getConnection();
+            try {
+                PreparedStatement _ap = _ac.prepareStatement(
+                    "UPDATE appointment SET status='Recorded' WHERE appointment_id=? AND status='Scheduled'");
+                _ap.setInt(1, Integer.parseInt(apptIdStr.trim()));
+                _ap.executeUpdate();
+                _ap.close();
+            } finally { try { _ac.close(); } catch (Exception e) {} }
+        }
         success = true;
 
     } catch (NumberFormatException e) {

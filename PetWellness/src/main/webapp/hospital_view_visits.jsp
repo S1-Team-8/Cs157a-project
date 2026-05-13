@@ -112,7 +112,7 @@
                     "(SELECT a.appointment_id FROM appointment a " +
                     "  WHERE a.pet_id = v.pet_id AND a.vet_id = v.vet_id " +
                     "    AND DATE(a.appointment_date) = DATE(v.visit_date) " +
-                    "    AND a.status IN ('Scheduled','Completed') LIMIT 1) AS appointment_id " +
+                    "    AND a.status IN ('Scheduled','Recorded','Treated','Completed') LIMIT 1) AS appointment_id " +
                     "FROM visit v JOIN pet p ON v.pet_id = p.pet_id " +
                     "JOIN pet_owner o ON p.owner_id = o.owner_id " +
                     "LEFT JOIN staff s ON v.vet_id = s.employee_id ";

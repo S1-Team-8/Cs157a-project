@@ -23,7 +23,7 @@
         Connection _c = DBConnection.getConnection();
         PreparedStatement _s; ResultSet _r;
 
-        _s = _c.prepareStatement("SELECT COUNT(*) FROM appointment WHERE DATE(appointment_date) = CURDATE() AND status = 'Scheduled'");
+        _s = _c.prepareStatement("SELECT COUNT(*) FROM appointment WHERE DATE(appointment_date) = CURDATE() AND status IN ('Scheduled','Recorded','Treated')");
         _r = _s.executeQuery(); if (_r.next()) todayAppointments = _r.getInt(1); _r.close(); _s.close();
 
         _s = _c.prepareStatement("SELECT COUNT(*) FROM appointment WHERE status = 'Pending'");
@@ -128,8 +128,9 @@
                     "JOIN pet p ON a.pet_id = p.pet_id " +
                     "JOIN pet_owner o ON p.owner_id = o.owner_id " +
                     "LEFT JOIN staff s ON a.vet_id = s.employee_id " +
-                    "WHERE a.appointment_date >= NOW() AND a.status = 'Scheduled' " +
-                    "ORDER BY a.appointment_date ASC LIMIT 3");
+                    "WHERE a.appointment_date >= NOW() AND a.status IN ('Scheduled','Recorded','Treated') " +
+                    "ORDER BY CASE a.status WHEN 'Treated' THEN 1 WHEN 'Recorded' THEN 2 WHEN 'Scheduled' THEN 3 END ASC, " +
+                    "a.appointment_date ASC LIMIT 3");
                 rsA = psA.executeQuery();
                 if (rsA.next()) {
                     hasAppts = true;
@@ -148,13 +149,17 @@
             <%
                 do {
                     String vetN = rsA.getString("vet_name"); if (vetN == null) vetN = "Unassigned";
+                    String stA  = rsA.getString("status");
+                    String bcA  = "Treated".equals(stA) ? "badge-treated"
+                                : "Recorded".equals(stA) ? "badge-recorded"
+                                : "badge-scheduled";
             %>
                 <tr>
                     <td><strong><%= rsA.getString("pet_name") %></strong> <span style="color:var(--text-muted);font-size:12px;">(<%= rsA.getString("species") %>)</span></td>
                     <td><%= rsA.getString("owner_name") %></td>
                     <td><%= vetN %></td>
                     <td><%= rsA.getString("appointment_date") %></td>
-                    <td><span class="badge badge-scheduled">Scheduled</span></td>
+                    <td><span class="badge <%= bcA %>"><%= stA %></span></td>
                 </tr>
             <% } while (rsA.next()); %>
             </tbody>

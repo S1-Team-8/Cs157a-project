@@ -31,7 +31,7 @@
                 "SELECT a.appointment_id FROM appointment a " +
                 "JOIN visit v ON v.pet_id = a.pet_id AND v.vet_id = a.vet_id " +
                 "    AND DATE(v.visit_date) = DATE(a.appointment_date) " +
-                "WHERE v.visit_id = ? AND a.status IN ('Scheduled','Completed') LIMIT 1");
+                "WHERE v.visit_id = ? AND a.status IN ('Scheduled','Recorded','Treated','Completed') LIMIT 1");
             _fbp.setInt(1, Integer.parseInt(directVisitId.trim()));
             _fbr = _fbp.executeQuery();
             if (_fbr.next()) apptIdStr = String.valueOf(_fbr.getInt("appointment_id"));
@@ -62,7 +62,7 @@
                 "LEFT JOIN visit v ON v.pet_id = a.pet_id " +
                 "    AND v.vet_id = a.vet_id " +
                 "    AND DATE(v.visit_date) = DATE(a.appointment_date) " +
-                "WHERE a.appointment_id = ? AND a.status IN ('Scheduled','Completed') LIMIT 1");
+                "WHERE a.appointment_id = ? AND a.status IN ('Scheduled','Recorded','Treated','Completed') LIMIT 1");
             _cp.setInt(1, apptId);
             _cr = _cp.executeQuery();
             if (_cr.next()) {
@@ -148,7 +148,7 @@
                         "JOIN pet p ON a.pet_id = p.pet_id " +
                         "JOIN pet_owner o ON p.owner_id = o.owner_id " +
                         "LEFT JOIN service_catalog sc ON a.service_id = sc.service_id " +
-                        "WHERE a.status IN ('Scheduled','Completed') " +
+                        "WHERE a.status IN ('Scheduled','Recorded','Treated','Completed') " +
                         "ORDER BY a.appointment_date DESC LIMIT 100");
                     _sr = _sp.executeQuery();
                     while (_sr.next()) {

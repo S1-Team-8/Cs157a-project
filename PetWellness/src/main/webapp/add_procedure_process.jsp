@@ -117,6 +117,14 @@
             }
         }
 
+        // Advance appointment status: Recorded → Treated
+        if (!apptIdStr.isEmpty()) {
+            PreparedStatement _tp = conn.prepareStatement(
+                "UPDATE appointment SET status='Treated' WHERE appointment_id=? AND status='Recorded'");
+            _tp.setInt(1, Integer.parseInt(apptIdStr.trim()));
+            _tp.executeUpdate();
+            _tp.close();
+        }
         success = true;
 
     } catch (SQLIntegrityConstraintViolationException e) {
