@@ -4,6 +4,12 @@
         response.sendRedirect("staff_login.jsp");
         return;
     }
+    String _role = (String) session.getAttribute("staff_role");
+    if (_role == null) _role = "";
+    if (!"Admin".equals(_role) && !"Technician".equals(_role)) {
+        response.sendRedirect("hospital_dashboard.jsp");
+        return;
+    }
     int loggedInTechId     = Integer.parseInt(session.getAttribute("employee_id").toString());
     String loggedInTechName = (String) session.getAttribute("staff_name");
     String preVisitId       = request.getParameter("visit_id");

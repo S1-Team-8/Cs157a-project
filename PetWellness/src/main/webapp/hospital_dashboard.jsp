@@ -19,13 +19,16 @@
     boolean isInvStaff = "Inventory Staff".equals(staffRole);
 
     // KPI counts — fail silently if DB is unavailable
-    int todayAppointments = 0, totalPets = 0, lowStockCount = 0;
+    int todayAppointments = 0, totalPets = 0, lowStockCount = 0, pendingRequests = 0;
     try {
         Connection _c = DBConnection.getConnection();
         PreparedStatement _s; ResultSet _r;
 
-        _s = _c.prepareStatement("SELECT COUNT(*) FROM appointment WHERE DATE(appointment_date) = CURDATE()");
+        _s = _c.prepareStatement("SELECT COUNT(*) FROM appointment WHERE DATE(appointment_date) = CURDATE() AND status = 'Scheduled'");
         _r = _s.executeQuery(); if (_r.next()) todayAppointments = _r.getInt(1); _r.close(); _s.close();
+
+        _s = _c.prepareStatement("SELECT COUNT(*) FROM appointment WHERE status = 'Pending'");
+        _r = _s.executeQuery(); if (_r.next()) pendingRequests = _r.getInt(1); _r.close(); _s.close();
 
         _s = _c.prepareStatement("SELECT COUNT(*) FROM pet");
         _r = _s.executeQuery(); if (_r.next()) totalPets = _r.getInt(1); _r.close(); _s.close();
@@ -75,9 +78,15 @@
     <!-- KPI strip -->
     <div class="kpi-grid" style="margin-bottom:28px;">
         <% if (isAdmin || isManager || isVet) { %>
-        <a href="view_appointments.jsp" style="text-decoration:none;">
+        <a href="view_appointments.jsp?status=Pending" style="text-decoration:none;">
+        <div class="kpi-card <%= pendingRequests > 0 ? "kpi-warning" : "" %>" style="cursor:pointer;">
+            <div class="kpi-label">Pending Requests</div>
+            <div class="kpi-value"><%= pendingRequests %></div>
+        </div>
+        </a>
+        <a href="view_appointments.jsp?status=Scheduled" style="text-decoration:none;">
         <div class="kpi-card" style="cursor:pointer;">
-            <div class="kpi-label">Appointments Today</div>
+            <div class="kpi-label">Scheduled Today</div>
             <div class="kpi-value"><%= todayAppointments %></div>
         </div>
         </a>
@@ -299,6 +308,20 @@
         </div>
         <% } %>
 
+        <%-- ── Service Catalog ─────────────────────────────────────────────── --%>
+        <div class="dashboard-section">
+            <div class="dashboard-section-title">
+                <span class="dashboard-section-icon">🩺</span> Services &amp; Pricing
+            </div>
+            <p class="section-desc">Define service types and assign them to clinics with pricing.</p>
+            <% if (isAdmin || isManager) { %>
+                <a class="btn btn-primary btn-block" href="manage_services.jsp">Manage Service Catalog</a>
+                <a class="section-btn" href="manage_clinic_services.jsp">Manage Clinic Pricing</a>
+            <% } else { %>
+                <a class="section-btn" href="manage_services.jsp">View Service Catalog</a>
+            <% } %>
+        </div>
+
         <%-- ── Staff & Administration ──────────────────────────────────────── --%>
         <% if (isAdmin || isManager) { %>
         <div class="dashboard-section">
@@ -312,6 +335,15 @@
             <a class="section-btn" href="reports.jsp">View Reports / KPIs</a>
         </div>
         <% } %>
+
+        <%-- ── My Account ──────────────────────────────────────────────── --%>
+        <div class="dashboard-section">
+            <div class="dashboard-section-title">
+                <span class="dashboard-section-icon">⚙️</span> My Account
+            </div>
+            <p class="section-desc">Manage your login credentials.</p>
+            <a class="section-btn" href="change_password_staff.jsp">Change Password</a>
+        </div>
 
     </div><!-- /.dashboard-grid -->
 

@@ -2,32 +2,25 @@ package com.petwellness.service;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.Types;
 import com.petwellness.util.DBConnection;
 
 public class SupportLogService {
 
-    public static void addSupportLog(int visitId, int technicianId, double weight, double temperature, String notes) {
+    public static void addSupportLog(int visitId, int technicianId, Double weight, Double temperature, String notes) throws Exception {
+        Connection conn = DBConnection.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(
+            "INSERT INTO visit_support_log (visit_id, technician_id, weight, temperature, notes) VALUES (?, ?, ?, ?, ?)");
         try {
-            Connection conn = DBConnection.getConnection();
-
-            String sql = "INSERT INTO visit_support_log (visit_id, technician_id, weight, temperature, notes) VALUES (?, ?, ?, ?, ?)";
-            PreparedStatement stmt = conn.prepareStatement(sql);
-
             stmt.setInt(1, visitId);
             stmt.setInt(2, technicianId);
-            stmt.setDouble(3, weight);
-            stmt.setDouble(4, temperature);
-            stmt.setString(5, notes);
-
+            if (weight != null) stmt.setDouble(3, weight); else stmt.setNull(3, Types.DOUBLE);
+            if (temperature != null) stmt.setDouble(4, temperature); else stmt.setNull(4, Types.DOUBLE);
+            stmt.setString(5, (notes != null && !notes.trim().isEmpty()) ? notes.trim() : null);
             stmt.executeUpdate();
-
-            stmt.close();
-            conn.close();
-
-            System.out.println("Support log added successfully.");
-
-        } catch (Exception e) {
-            e.printStackTrace();
+        } finally {
+            try { stmt.close(); } catch (Exception e) {}
+            try { conn.close(); } catch (Exception e) {}
         }
     }
 }

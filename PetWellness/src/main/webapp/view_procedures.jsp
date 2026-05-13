@@ -7,6 +7,12 @@
         response.sendRedirect("staff_login.jsp");
         return;
     }
+    String _role = (String) session.getAttribute("staff_role");
+    if (_role == null) _role = "";
+    if (!"Admin".equals(_role) && !"Veterinarian".equals(_role) && !"Technician".equals(_role) && !"Manager".equals(_role)) {
+        response.sendRedirect("hospital_dashboard.jsp");
+        return;
+    }
     String visitIdStr = request.getParameter("visit_id");
     List<ProcedureRecord> procedures = null;
     Integer visitId = null;

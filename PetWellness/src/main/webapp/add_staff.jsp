@@ -6,9 +6,13 @@
     }
     String staffRole = (String) session.getAttribute("staff_role");
     if (staffRole == null) staffRole = "";
-    boolean isAdmin   = "Admin".equals(staffRole);
-    boolean isManager = "Manager".equals(staffRole);
+    boolean isAdmin    = "Admin".equals(staffRole);
+    boolean isManager  = "Manager".equals(staffRole);
     boolean isInvStaff = "Inventory Staff".equals(staffRole);
+    if (!isAdmin) {
+        response.sendRedirect("hospital_dashboard.jsp");
+        return;
+    }
 %>
 <!DOCTYPE html>
 <html>

@@ -6,6 +6,12 @@
         response.sendRedirect("staff_login.jsp");
         return;
     }
+    String _role = (String) session.getAttribute("staff_role");
+    if (_role == null) _role = "";
+    if (!"Admin".equals(_role) && !"Veterinarian".equals(_role)) {
+        response.sendRedirect("hospital_dashboard.jsp");
+        return;
+    }
 %>
 <!DOCTYPE html>
 <html>
@@ -75,12 +81,10 @@
                     try {
                         conn2 = DBConnection.getConnection();
                         ps2 = conn2.prepareStatement(
-                            "SELECT employee_id, full_name, role FROM staff WHERE is_active = TRUE ORDER BY full_name");
+                            "SELECT employee_id, full_name FROM staff WHERE is_active = TRUE AND role = 'Veterinarian' ORDER BY full_name");
                         rs2 = ps2.executeQuery();
                         while (rs2.next()) { %>
-                    <option value="<%= rs2.getInt("employee_id") %>">
-                        <%= rs2.getString("full_name") %> (<%= rs2.getString("role") %>)
-                    </option>
+                    <option value="<%= rs2.getInt("employee_id") %>"><%= rs2.getString("full_name") %></option>
                 <%      }
                     } catch (Exception e) { out.println("<option disabled>Error loading staff</option>"); }
                     finally {

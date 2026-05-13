@@ -32,9 +32,10 @@
 <nav class="topbar">
     <div class="brand"><a href="dashboard.jsp">🐾 PetWellness</a></div>
     <div class="nav-links">
-        <a href="dashboard.jsp">Dashboard</a>
+        <a href="dashboard.jsp" class="nav-active">Dashboard</a>
         <a href="view_pets.jsp">My Pets</a>
         <a href="view_my_appointments.jsp">Appointments</a>
+        <a href="search_clinic.jsp">Clinics</a>
         <a href="logout.jsp" class="nav-logout">Logout</a>
     </div>
 </nav>
@@ -74,7 +75,7 @@
             <div class="dashboard-section-title">
                 <span class="dashboard-section-icon">📅</span> Appointments
             </div>
-            <a class="section-btn" href="schedule_appointment.jsp">Schedule Appointment</a>
+            <a class="section-btn" href="schedule_appointment.jsp">Request Appointment</a>
             <a class="section-btn" href="view_my_appointments.jsp">View My Appointments</a>
         </div>
 
@@ -91,6 +92,8 @@
             <div class="dashboard-section-title">
                 <span class="dashboard-section-icon">⚙️</span> Account
             </div>
+            <a class="section-btn" href="owner_profile.jsp">My Profile</a>
+            <a class="section-btn" href="change_password_owner.jsp">Change Password</a>
             <a class="section-btn" href="logout.jsp">Logout</a>
         </div>
 

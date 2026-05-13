@@ -6,6 +6,12 @@
         response.sendRedirect("staff_login.jsp");
         return;
     }
+    String _role0 = (String) session.getAttribute("staff_role");
+    if (_role0 == null) _role0 = "";
+    if (!"Admin".equals(_role0) && !"Manager".equals(_role0) && !"Veterinarian".equals(_role0) && !"Technician".equals(_role0)) {
+        response.sendRedirect("hospital_dashboard.jsp");
+        return;
+    }
     String petIdStr = request.getParameter("pet_id");
 %>
 <!DOCTYPE html>

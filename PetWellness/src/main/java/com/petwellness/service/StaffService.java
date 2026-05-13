@@ -46,30 +46,6 @@ public class StaffService {
         }
     }
 
-    public static void addStaff(String fullName, String role, String username, String passwordHash) {
-        try {
-            Connection conn = DBConnection.getConnection();
-
-            String sql = "INSERT INTO staff (full_name, role, username, password_hash, is_active) VALUES (?, ?, ?, ?, TRUE)";
-            PreparedStatement stmt = conn.prepareStatement(sql);
-
-            stmt.setString(1, fullName);
-            stmt.setString(2, role);
-            stmt.setString(3, username);
-            stmt.setString(4, passwordHash);
-
-            stmt.executeUpdate();
-
-            stmt.close();
-            conn.close();
-
-            System.out.println("Staff account created successfully.");
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     public static void updateStaffRole(int employeeId, String role) {
         try {
             Connection conn = DBConnection.getConnection();
@@ -106,7 +82,24 @@ public class StaffService {
             stmt.close();
             conn.close();
 
-            System.out.println("Staff account deactivated successfully.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void reactivateStaff(int employeeId) {
+        try {
+            Connection conn = DBConnection.getConnection();
+
+            String sql = "UPDATE staff SET is_active = TRUE WHERE employee_id = ?";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+
+            stmt.setInt(1, employeeId);
+
+            stmt.executeUpdate();
+
+            stmt.close();
+            conn.close();
 
         } catch (Exception e) {
             e.printStackTrace();

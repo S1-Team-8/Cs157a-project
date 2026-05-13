@@ -6,6 +6,12 @@
         response.sendRedirect("staff_login.jsp");
         return;
     }
+    String _role = (String) session.getAttribute("staff_role");
+    if (_role == null) _role = "";
+    if (!"Admin".equals(_role) && !"Manager".equals(_role)) {
+        response.sendRedirect("hospital_dashboard.jsp");
+        return;
+    }
 
     String actionType = request.getParameter("action_type");
     boolean success = false;
@@ -27,7 +33,11 @@
             int vetId = Integer.parseInt(vetIdStr);
             String formattedDate = appointmentDate.replace("T", " ") + ":00";
 
-            AppointmentService.addAppointment(petId, vetId, formattedDate);
+            String svcIdStr = request.getParameter("service_id");
+            Integer serviceId = (svcIdStr != null && !svcIdStr.trim().isEmpty())
+                                ? Integer.parseInt(svcIdStr) : null;
+
+            AppointmentService.addAppointment(petId, vetId, formattedDate, serviceId);
             success = true;
 
         } else if ("update".equals(actionType)) {
@@ -41,6 +51,24 @@
 
             int appointmentId = Integer.parseInt(apptIdStr);
             AppointmentService.updateAppointmentStatus(appointmentId, status);
+
+            // When completed, auto-create a visit record for patient history
+            if ("Completed".equals(status)) {
+                java.sql.Connection _ac = com.petwellness.util.DBConnection.getConnection();
+                java.sql.PreparedStatement _as = null;
+                try {
+                    _as = _ac.prepareStatement(
+                        "INSERT INTO visit (pet_id, vet_id, visit_date, notes, service_id) " +
+                        "SELECT a.pet_id, a.vet_id, a.appointment_date, NULL, a.service_id " +
+                        "FROM appointment a " +
+                        "WHERE a.appointment_id = ? AND a.vet_id IS NOT NULL");
+                    _as.setInt(1, appointmentId);
+                    _as.executeUpdate();
+                } finally {
+                    try { if (_as != null) _as.close(); } catch (Exception e) {}
+                    try { _ac.close(); } catch (Exception e) {}
+                }
+            }
             success = true;
 
         } else {
@@ -57,7 +85,10 @@
     }
 
     if (success) {
-        response.sendRedirect("view_appointments.jsp");
+        String redirectMsg = "Completed".equals(request.getParameter("status")) ? "completed" : "updated";
+        if ("create".equals(actionType)) redirectMsg = "created";
+        response.sendRedirect("view_appointments.jsp?msg=" + redirectMsg);
+        return;
     }
 %>
 
@@ -65,32 +96,36 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Appointment Error</title>
-    <style>
-        * { box-sizing: border-box; }
-        body { margin: 0; font-family: Arial, sans-serif; background: #eef2f7; color: #1f2d3d; }
-        .page-wrapper { min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 40px 20px; }
-        .result-card { width: 100%; max-width: 700px; background: #fff; border-radius: 20px; box-shadow: 0 12px 35px rgba(0,0,0,0.08); padding: 40px 45px; text-align: center; }
-        .icon-circle { width: 90px; height: 90px; margin: 0 auto 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 42px; font-weight: bold; background: #fdecec; color: #c0392b; }
-        .page-title { margin: 0 0 12px 0; font-size: 40px; font-weight: 700; color: #2f5597; }
-        .message { font-size: 20px; line-height: 1.6; margin-bottom: 30px; color: #c0392b; }
-        .button-group { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
-        .btn { display: inline-block; text-decoration: none; border: none; border-radius: 12px; padding: 14px 28px; font-size: 18px; font-weight: 600; cursor: pointer; }
-        .btn-primary   { background: #2f5597; color: #fff; }
-        .btn-secondary { background: #dfe7f2; color: #2f5597; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appointment Error — PetWellness</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="page-wrapper">
-    <div class="result-card">
-        <div class="icon-circle">!</div>
-        <h1 class="page-title">Something Went Wrong</h1>
-        <p class="message"><%= errorMsg %></p>
-        <div class="button-group">
-            <a href="manage_appointment.jsp" class="btn btn-primary">Try Again</a>
-            <a href="hospital_dashboard.jsp" class="btn btn-secondary">Back to Dashboard</a>
-        </div>
+
+<nav class="topbar">
+    <div class="brand"><a href="hospital_dashboard.jsp">🐾 PetWellness</a></div>
+    <div class="nav-links">
+        <a href="hospital_dashboard.jsp">Dashboard</a>
+        <a href="view_appointments.jsp">Appointments</a>
+        <a href="logout.jsp" class="nav-logout">Logout</a>
     </div>
+</nav>
+
+<div class="page-shell" style="display:flex;align-items:center;justify-content:center;min-height:calc(100vh - var(--topbar-h));">
+<div class="card-sm" style="width:100%;">
+<div class="card" style="text-align:center;">
+
+    <div class="result-icon error">!</div>
+    <h1 class="page-title">Something Went Wrong</h1>
+    <div class="alert alert-error" style="text-align:left;"><%= errorMsg %></div>
+    <div class="btn-row" style="justify-content:center;">
+        <a href="manage_appointment.jsp" class="btn btn-primary">Try Again</a>
+        <a href="hospital_dashboard.jsp" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+
 </div>
+</div>
+</div>
+
 </body>
 </html>

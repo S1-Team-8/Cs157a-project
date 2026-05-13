@@ -7,6 +7,12 @@
         response.sendRedirect("staff_login.jsp");
         return;
     }
+    String _role = (String) session.getAttribute("staff_role");
+    if (_role == null) _role = "";
+    if (!"Admin".equals(_role) && !"Manager".equals(_role) && !"Inventory Staff".equals(_role)) {
+        response.sendRedirect("hospital_dashboard.jsp");
+        return;
+    }
     List<LowStockRecord> lowStockItems = InventoryReportService.getLowStockItems();
 %>
 <!DOCTYPE html>
@@ -75,6 +81,61 @@
         <%      }
             }
         %>
+        </tbody>
+    </table>
+
+    <hr class="divider">
+
+    <h2 class="section-heading">Most Used Items (Last 30 Days)</h2>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Item Name</th>
+                <th>Category</th>
+                <th>Times Used</th>
+                <th>Total Units Consumed</th>
+                <th>Current Stock</th>
+            </tr>
+        </thead>
+        <tbody>
+        <%
+            java.sql.Connection _uc = null; java.sql.PreparedStatement _us = null; java.sql.ResultSet _ur = null;
+            boolean hasUsage = false;
+            try {
+                _uc = com.petwellness.util.DBConnection.getConnection();
+                _us = _uc.prepareStatement(
+                    "SELECT i.item_id, i.item_name, i.category, i.qty_on_hand, " +
+                    "COUNT(ul.usage_id) AS times_used, SUM(ul.qty_used) AS total_used " +
+                    "FROM inventory_usage_log ul " +
+                    "JOIN inventory_item i ON ul.item_id = i.item_id " +
+                    "WHERE ul.used_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) " +
+                    "GROUP BY i.item_id, i.item_name, i.category, i.qty_on_hand " +
+                    "ORDER BY total_used DESC LIMIT 10");
+                _ur = _us.executeQuery();
+                while (_ur.next()) {
+                    hasUsage = true;
+        %>
+            <tr>
+                <td><strong><%= _ur.getString("item_name") %></strong></td>
+                <td><%= _ur.getString("category") != null ? _ur.getString("category") : "" %></td>
+                <td><%= _ur.getInt("times_used") %></td>
+                <td><%= _ur.getInt("total_used") %></td>
+                <td><%= _ur.getInt("qty_on_hand") %></td>
+            </tr>
+        <%      }
+            } catch (Exception _e) {
+                out.println("<tr><td colspan=\"5\"><div class=\"alert alert-error\">Error loading usage data.</div></td></tr>");
+            } finally {
+                try { if (_ur != null) _ur.close(); } catch (Exception e) {}
+                try { if (_us != null) _us.close(); } catch (Exception e) {}
+                try { if (_uc != null) _uc.close(); } catch (Exception e) {}
+            }
+            if (!hasUsage) {
+        %>
+            <tr class="no-data">
+                <td colspan="5">No inventory usage recorded in the last 30 days.</td>
+            </tr>
+        <% } %>
         </tbody>
     </table>
 

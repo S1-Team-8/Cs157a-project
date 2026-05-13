@@ -6,6 +6,10 @@
         response.sendRedirect("staff_login.jsp");
         return;
     }
+    if (!"Admin".equals(session.getAttribute("staff_role"))) {
+        response.sendRedirect("hospital_dashboard.jsp");
+        return;
+    }
 %>
 <!DOCTYPE html>
 <html>
@@ -100,7 +104,7 @@
                     </form>
                 </td>
 
-                <!-- Deactivate -->
+                <!-- Deactivate / Reactivate -->
                 <td>
                     <% if (active) { %>
                         <form action="deactivate_staff_process.jsp" method="post">
@@ -108,7 +112,10 @@
                             <button type="submit" class="btn btn-danger btn-sm">Deactivate</button>
                         </form>
                     <% } else { %>
-                        <span class="text-muted" style="font-size:13px;">Inactive</span>
+                        <form action="reactivate_staff_process.jsp" method="post">
+                            <input type="hidden" name="employee_id" value="<%= id %>">
+                            <button type="submit" class="btn btn-success btn-sm">Reactivate</button>
+                        </form>
                     <% } %>
                 </td>
             </tr>

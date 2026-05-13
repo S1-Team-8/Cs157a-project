@@ -10,12 +10,9 @@
     }
     try {
         int employeeId = Integer.parseInt(request.getParameter("employee_id"));
-
-        StaffService.deactivateStaff(employeeId);
-
+        StaffService.reactivateStaff(employeeId);
         response.sendRedirect("manage_staff.jsp");
     } catch (Exception e) {
-        out.println("<h3>Error deactivating staff account.</h3>");
-        e.printStackTrace(new java.io.PrintWriter(out));
+        response.sendRedirect("manage_staff.jsp");
     }
 %>

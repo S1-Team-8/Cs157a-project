@@ -7,6 +7,12 @@
         response.sendRedirect("staff_login.jsp");
         return;
     }
+    String _role = (String) session.getAttribute("staff_role");
+    if (_role == null) _role = "";
+    if (!"Admin".equals(_role) && !"Veterinarian".equals(_role)) {
+        response.sendRedirect("hospital_dashboard.jsp");
+        return;
+    }
 
     String petIdStr    = request.getParameter("pet_id");
     String vetIdStr    = request.getParameter("vet_id");
@@ -60,47 +66,47 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Visit Record Result</title>
-    <style>
-        * { box-sizing: border-box; }
-        body { margin: 0; font-family: Arial, sans-serif; background: #eef2f7; color: #1f2d3d; }
-        .page-wrapper { min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 40px 20px; }
-        .result-card { width: 100%; max-width: 700px; background: #fff; border-radius: 20px; box-shadow: 0 12px 35px rgba(0,0,0,0.08); padding: 40px 45px; text-align: center; }
-        .icon-circle { width: 90px; height: 90px; margin: 0 auto 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 42px; font-weight: bold; }
-        .icon-success { background: #e7f7ee; color: #1f8f4d; }
-        .icon-error   { background: #fdecec; color: #c0392b; }
-        .page-title { margin: 0 0 12px 0; font-size: 40px; font-weight: 700; color: #2f5597; }
-        .message { font-size: 20px; line-height: 1.6; margin-bottom: 30px; }
-        .success-text { color: #1f8f4d; }
-        .error-text   { color: #c0392b; }
-        .button-group { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
-        .btn { display: inline-block; text-decoration: none; border: none; border-radius: 12px; padding: 14px 28px; font-size: 18px; font-weight: 600; cursor: pointer; }
-        .btn-primary   { background: #2f5597; color: #fff; }
-        .btn-secondary { background: #dfe7f2; color: #2f5597; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visit Record Result — PetWellness</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="page-wrapper">
-    <div class="result-card">
-        <% if (success) { %>
-            <div class="icon-circle icon-success">&#10003;</div>
-            <h1 class="page-title">Visit Saved</h1>
-            <p class="message success-text">Visit record has been created successfully.</p>
-            <div class="button-group">
-                <a href="hospital_add_visit.jsp" class="btn btn-primary">Add Another Visit</a>
-                <a href="hospital_view_visits.jsp" class="btn btn-secondary">View All Visits</a>
-                <a href="hospital_dashboard.jsp" class="btn btn-secondary">Dashboard</a>
-            </div>
-        <% } else { %>
-            <div class="icon-circle icon-error">!</div>
-            <h1 class="page-title">Something Went Wrong</h1>
-            <p class="message error-text"><%= errorMsg %></p>
-            <div class="button-group">
-                <a href="hospital_add_visit.jsp" class="btn btn-primary">Try Again</a>
-                <a href="hospital_dashboard.jsp" class="btn btn-secondary">Back to Dashboard</a>
-            </div>
-        <% } %>
+
+<nav class="topbar">
+    <div class="brand"><a href="hospital_dashboard.jsp">🐾 PetWellness</a></div>
+    <div class="nav-links">
+        <a href="hospital_dashboard.jsp">Dashboard</a>
+        <a href="hospital_view_visits.jsp">Visits</a>
+        <a href="logout.jsp" class="nav-logout">Logout</a>
     </div>
+</nav>
+
+<div class="page-shell" style="display:flex;align-items:center;justify-content:center;min-height:calc(100vh - var(--topbar-h));">
+<div class="card-sm" style="width:100%;">
+<div class="card" style="text-align:center;">
+
+    <% if (success) { %>
+        <div class="result-icon success">&#10003;</div>
+        <h1 class="page-title">Visit Saved</h1>
+        <p class="page-subtitle">Visit record has been created successfully.</p>
+        <div class="btn-row" style="justify-content:center;">
+            <a href="hospital_add_visit.jsp" class="btn btn-primary">Add Another Visit</a>
+            <a href="hospital_view_visits.jsp" class="btn btn-secondary">View All Visits</a>
+            <a href="hospital_dashboard.jsp" class="btn btn-secondary">Dashboard</a>
+        </div>
+    <% } else { %>
+        <div class="result-icon error">!</div>
+        <h1 class="page-title">Something Went Wrong</h1>
+        <div class="alert alert-error" style="text-align:left;"><%= errorMsg %></div>
+        <div class="btn-row" style="justify-content:center;">
+            <a href="hospital_add_visit.jsp" class="btn btn-primary">Try Again</a>
+            <a href="hospital_dashboard.jsp" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+    <% } %>
+
 </div>
+</div>
+</div>
+
 </body>
 </html>

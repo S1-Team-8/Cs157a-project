@@ -6,6 +6,12 @@
         response.sendRedirect("staff_login.jsp");
         return;
     }
+    String staffRole = (String) session.getAttribute("staff_role");
+    if (staffRole == null) staffRole = "";
+    if (!"Admin".equals(staffRole) && !"Manager".equals(staffRole)) {
+        response.sendRedirect("hospital_dashboard.jsp");
+        return;
+    }
     DashboardStats stats = ReportService.getDashboardStats();
 %>
 <!DOCTYPE html>
