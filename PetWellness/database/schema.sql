@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS clinic (
     address VARCHAR(255),
     phone VARCHAR(30),
     email VARCHAR(100),
+    distance INT;
     rating DECIMAL(3,2) DEFAULT 0.00
 );
 

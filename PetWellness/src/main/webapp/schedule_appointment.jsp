@@ -1,8 +1,5 @@
 <%@ page import="java.sql.*" %>
-<%@ page import="java.util.List" %>
 <%@ page import="com.petwellness.util.DBConnection" %>
-<%@ page import="com.petwellness.service.ServiceCatalogService" %>
-<%@ page import="com.petwellness.service.ServiceCatalogService.ServiceRecord" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 
 <%
@@ -13,70 +10,57 @@
 
     int ownerId = Integer.parseInt(session.getAttribute("owner_id").toString());
 
-    String petIdStr     = request.getParameter("pet_id");
-    String serviceIdStr = request.getParameter("service_id");
+    String selectedClinicId = request.getParameter("clinic_id");
+    String petIdStr = request.getParameter("pet_id");
+    String clinicIdStr = request.getParameter("clinic_id");
     String requestedDate = request.getParameter("appointment_date");
-    String notes        = request.getParameter("notes");
+    String notes = request.getParameter("notes");
 
     String successMessage = null;
-    String errorMessage   = null;
+    String errorMessage = null;
 
     if ("POST".equalsIgnoreCase(request.getMethod())) {
-        if (petIdStr != null && requestedDate != null
+        if (petIdStr != null && clinicIdStr != null && requestedDate != null
                 && !petIdStr.trim().isEmpty()
+                && !clinicIdStr.trim().isEmpty()
                 && !requestedDate.trim().isEmpty()) {
 
-            Connection conn = null; PreparedStatement stmt = null;
+            Connection conn = null;
+            PreparedStatement stmt = null;
+
             try {
                 conn = DBConnection.getConnection();
 
                 int petId = Integer.parseInt(petIdStr);
-                Integer serviceId = (serviceIdStr != null && !serviceIdStr.trim().isEmpty())
-                                    ? Integer.parseInt(serviceIdStr) : null;
+                int clinicId = Integer.parseInt(clinicIdStr);
 
-                // Verify the pet belongs to this owner
-                PreparedStatement checkStmt = conn.prepareStatement(
-                    "SELECT pet_name FROM pet WHERE pet_id = ? AND owner_id = ?");
-                checkStmt.setInt(1, petId);
-                checkStmt.setInt(2, ownerId);
-                ResultSet checkRs = checkStmt.executeQuery();
-                String petName = checkRs.next() ? checkRs.getString("pet_name") : null;
-                checkRs.close(); checkStmt.close();
+                stmt = conn.prepareStatement(
+                    "INSERT INTO appointment (pet_id, vet_id, appointment_date, status) VALUES (?, ?, ?, 'Pending')"
+                );
 
-                if (petName == null) {
-                    errorMessage = "Invalid pet selection.";
-                } else {
-                    stmt = conn.prepareStatement(
-                        "INSERT INTO appointment (pet_id, vet_id, appointment_date, status, service_id) " +
-                        "VALUES (?, NULL, ?, 'Pending', ?)");
-                    stmt.setInt(1, petId);
-                    stmt.setString(2, requestedDate.replace("T", " "));
-                    if (serviceId != null) stmt.setInt(3, serviceId);
-                    else                   stmt.setNull(3, java.sql.Types.INTEGER);
-                    stmt.executeUpdate();
+                stmt.setInt(1, petId);
+                stmt.setInt(2, clinicId);
+                stmt.setString(3, requestedDate.replace("T", " "));
+                stmt.executeUpdate();
 
-                    successMessage = "Appointment request submitted for " + petName + ". " +
-                                     "The clinic will review and confirm your time.";
-                }
+                successMessage = "Appointment request submitted.";
+
             } catch (Exception e) {
-                errorMessage = "Unable to submit request. Please try again.";
+                errorMessage = "Unable to submit request: " + e.getMessage();
             } finally {
                 try { if (stmt != null) stmt.close(); } catch (Exception e) {}
                 try { if (conn != null) conn.close(); } catch (Exception e) {}
             }
         } else {
-            errorMessage = "Please select a pet and provide a preferred date.";
+            errorMessage = "Please select a pet, clinic, and preferred date.";
         }
     }
-
-    List<ServiceRecord> serviceList = ServiceCatalogService.getAllServices();
 %>
 
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Request Appointment — PetWellness</title>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -98,12 +82,13 @@
 <div class="card">
 
     <h1 class="page-title">Request an Appointment</h1>
-    <p class="page-subtitle">Submit a request — the clinic will assign a vet and confirm your time.</p>
+    <p class="page-subtitle">Submit a request — the clinic will review and confirm your time.</p>
     <hr class="divider">
 
     <% if (successMessage != null) { %>
         <div class="alert alert-success"><%= successMessage %></div>
     <% } %>
+
     <% if (errorMessage != null) { %>
         <div class="alert alert-error"><%= errorMessage %></div>
     <% } %>
@@ -115,53 +100,76 @@
             <select name="pet_id" id="pet_id" class="form-control" required>
                 <option value="">-- Select a Pet --</option>
                 <%
-                    Connection _pc = null; PreparedStatement _ps = null; ResultSet _pr = null;
+                    Connection petConn = null;
+                    PreparedStatement petStmt = null;
+                    ResultSet petRs = null;
+
                     try {
-                        _pc = DBConnection.getConnection();
-                        _ps = _pc.prepareStatement(
-                            "SELECT pet_id, pet_name, species FROM pet WHERE owner_id = ?");
-                        _ps.setInt(1, ownerId);
-                        _pr = _ps.executeQuery();
-                        while (_pr.next()) {
-                            String species = _pr.getString("species");
+                        petConn = DBConnection.getConnection();
+                        petStmt = petConn.prepareStatement(
+                            "SELECT pet_id, pet_name, species FROM pet WHERE owner_id = ?"
+                        );
+                        petStmt.setInt(1, ownerId);
+                        petRs = petStmt.executeQuery();
+
+                        while (petRs.next()) {
+                            String species = petRs.getString("species");
                 %>
-                    <option value="<%= _pr.getInt("pet_id") %>">
-                        <%= _pr.getString("pet_name") %><%= species != null ? " (" + species + ")" : "" %>
+                    <option value="<%= petRs.getInt("pet_id") %>">
+                        <%= petRs.getString("pet_name") %><%= species != null ? " (" + species + ")" : "" %>
                     </option>
                 <%
                         }
                     } catch (Exception e) {
                         out.println("<option disabled>Error loading pets</option>");
                     } finally {
-                        try { if (_pr != null) _pr.close(); } catch (Exception e) {}
-                        try { if (_ps != null) _ps.close(); } catch (Exception e) {}
-                        try { if (_pc != null) _pc.close(); } catch (Exception e) {}
+                        try { if (petRs != null) petRs.close(); } catch (Exception e) {}
+                        try { if (petStmt != null) petStmt.close(); } catch (Exception e) {}
+                        try { if (petConn != null) petConn.close(); } catch (Exception e) {}
                     }
                 %>
             </select>
         </div>
 
         <div class="form-group">
-            <label for="service_id">Service</label>
-            <select name="service_id" id="service_id" class="form-control">
-                <option value="">-- No specific service --</option>
-                <% for (ServiceRecord svc : serviceList) { %>
-                    <option value="<%= svc.getServiceId() %>">
-                        <%= svc.getServiceName() %>
-                        <% if (!svc.getCategory().isEmpty()) { %> (<%= svc.getCategory() %>)<% } %>
+            <label for="clinic_id">Clinic *</label>
+            <select name="clinic_id" id="clinic_id" class="form-control" required>
+                <option value="">-- Select a Clinic --</option>
+                <%
+                    Connection clinicConn = null;
+                    PreparedStatement clinicStmt = null;
+                    ResultSet clinicRs = null;
+
+                    try {
+                        clinicConn = DBConnection.getConnection();
+                        clinicStmt = clinicConn.prepareStatement(
+                            "SELECT clinic_id, clinic_name FROM clinic ORDER BY clinic_name"
+                        );
+                        clinicRs = clinicStmt.executeQuery();
+
+                        while (clinicRs.next()) {
+                            String clinicId = String.valueOf(clinicRs.getInt("clinic_id"));
+                %>
+                    <option value="<%= clinicId %>" <%= clinicId.equals(selectedClinicId) ? "selected" : "" %>>
+                        <%= clinicRs.getString("clinic_name") %>
                     </option>
-                <% } %>
+                <%
+                        }
+                    } catch (Exception e) {
+                        out.println("<option disabled>Error loading clinics</option>");
+                    } finally {
+                        try { if (clinicRs != null) clinicRs.close(); } catch (Exception e) {}
+                        try { if (clinicStmt != null) clinicStmt.close(); } catch (Exception e) {}
+                        try { if (clinicConn != null) clinicConn.close(); } catch (Exception e) {}
+                    }
+                %>
             </select>
-            <% if (serviceList.isEmpty()) { %>
-                <p class="form-hint">No services listed yet. You can still request without selecting one.</p>
-            <% } %>
         </div>
 
         <div class="form-group">
             <label for="appointment_date">Preferred Date &amp; Time *</label>
             <input type="datetime-local" name="appointment_date" id="appointment_date"
                    class="form-control" required>
-            <p class="form-hint">The clinic may adjust the time when confirming.</p>
         </div>
 
         <div class="form-group">
@@ -173,7 +181,7 @@
         <div class="btn-row">
             <button type="submit" class="btn btn-primary">Submit Request</button>
             <a href="view_my_appointments.jsp" class="btn btn-secondary">My Appointments</a>
-            <a href="dashboard.jsp" class="btn btn-secondary">Back to Dashboard</a>
+            <a href="search_clinic.jsp" class="btn btn-secondary">Back to Clinics</a>
         </div>
 
     </form>
