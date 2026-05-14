@@ -11,19 +11,21 @@
     int ownerId = Integer.parseInt(session.getAttribute("owner_id").toString());
 
     String selectedClinicId = request.getParameter("clinic_id");
+
     String petIdStr = request.getParameter("pet_id");
     String clinicIdStr = request.getParameter("clinic_id");
-    String requestedDate = request.getParameter("appointment_date");
+    String serviceIdStr = request.getParameter("service_id");
+    String appointmentDate = request.getParameter("appointment_date");
     String notes = request.getParameter("notes");
 
     String successMessage = null;
     String errorMessage = null;
 
     if ("POST".equalsIgnoreCase(request.getMethod())) {
-        if (petIdStr != null && clinicIdStr != null && requestedDate != null
+        if (petIdStr != null && clinicIdStr != null && appointmentDate != null
                 && !petIdStr.trim().isEmpty()
                 && !clinicIdStr.trim().isEmpty()
-                && !requestedDate.trim().isEmpty()) {
+                && !appointmentDate.trim().isEmpty()) {
 
             Connection conn = null;
             PreparedStatement stmt = null;
@@ -34,16 +36,29 @@
                 int petId = Integer.parseInt(petIdStr);
                 int clinicId = Integer.parseInt(clinicIdStr);
 
+                Integer serviceId = null;
+                if (serviceIdStr != null && !serviceIdStr.trim().isEmpty()) {
+                    serviceId = Integer.parseInt(serviceIdStr);
+                }
+
                 stmt = conn.prepareStatement(
-                    "INSERT INTO appointment (pet_id, vet_id, appointment_date, status) VALUES (?, ?, ?, 'Pending')"
+                    "INSERT INTO appointment (pet_id, vet_id, appointment_date, status, service_id) " +
+                    "VALUES (?, ?, ?, 'Pending', ?)"
                 );
 
                 stmt.setInt(1, petId);
                 stmt.setInt(2, clinicId);
-                stmt.setString(3, requestedDate.replace("T", " "));
+                stmt.setString(3, appointmentDate.replace("T", " "));
+
+                if (serviceId != null) {
+                    stmt.setInt(4, serviceId);
+                } else {
+                    stmt.setNull(4, java.sql.Types.INTEGER);
+                }
+
                 stmt.executeUpdate();
 
-                successMessage = "Appointment request submitted.";
+                successMessage = "Appointment request submitted successfully.";
 
             } catch (Exception e) {
                 errorMessage = "Unable to submit request: " + e.getMessage();
@@ -99,6 +114,7 @@
             <label for="pet_id">Your Pet *</label>
             <select name="pet_id" id="pet_id" class="form-control" required>
                 <option value="">-- Select a Pet --</option>
+
                 <%
                     Connection petConn = null;
                     PreparedStatement petStmt = null;
@@ -135,6 +151,7 @@
             <label for="clinic_id">Clinic *</label>
             <select name="clinic_id" id="clinic_id" class="form-control" required>
                 <option value="">-- Select a Clinic --</option>
+
                 <%
                     Connection clinicConn = null;
                     PreparedStatement clinicStmt = null;
@@ -161,6 +178,43 @@
                         try { if (clinicRs != null) clinicRs.close(); } catch (Exception e) {}
                         try { if (clinicStmt != null) clinicStmt.close(); } catch (Exception e) {}
                         try { if (clinicConn != null) clinicConn.close(); } catch (Exception e) {}
+                    }
+                %>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="service_id">Service</label>
+            <select name="service_id" id="service_id" class="form-control">
+                <option value="">-- No Specific Service --</option>
+
+                <%
+                    Connection serviceConn = null;
+                    PreparedStatement serviceStmt = null;
+                    ResultSet serviceRs = null;
+
+                    try {
+                        serviceConn = DBConnection.getConnection();
+                        serviceStmt = serviceConn.prepareStatement(
+                            "SELECT service_id, service_name, category FROM service_catalog ORDER BY service_name"
+                        );
+                        serviceRs = serviceStmt.executeQuery();
+
+                        while (serviceRs.next()) {
+                            String category = serviceRs.getString("category");
+                %>
+                    <option value="<%= serviceRs.getInt("service_id") %>">
+                        <%= serviceRs.getString("service_name") %>
+                        <%= category != null && !category.trim().isEmpty() ? " (" + category + ")" : "" %>
+                    </option>
+                <%
+                        }
+                    } catch (Exception e) {
+                        out.println("<option disabled>Error loading services</option>");
+                    } finally {
+                        try { if (serviceRs != null) serviceRs.close(); } catch (Exception e) {}
+                        try { if (serviceStmt != null) serviceStmt.close(); } catch (Exception e) {}
+                        try { if (serviceConn != null) serviceConn.close(); } catch (Exception e) {}
                     }
                 %>
             </select>
