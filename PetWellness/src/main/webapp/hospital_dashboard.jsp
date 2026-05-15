@@ -14,7 +14,7 @@
 
     boolean isAdmin    = "Admin".equals(staffRole);
     boolean isManager  = "Manager".equals(staffRole);
-    boolean isVet      = "Veterinarian".equals(staffRole);
+    boolean isVet      = "Veterinarian".equals(staffRole) || "Vet".equals(staffRole);
     boolean isTech     = "Technician".equals(staffRole);
 
     // KPI counts — fail silently if DB is unavailable

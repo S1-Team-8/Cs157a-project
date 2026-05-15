@@ -8,8 +8,11 @@
         return;
     }
     String _role = (String) session.getAttribute("staff_role");
+    
+    boolean isAdmin = "Admin".equals(_role);
+    boolean isVet = "Veterinarian".equals(_role) || "Vet".equals(_role);
     if (_role == null) _role = "";
-    if (!"Admin".equals(_role) && !"Veterinarian".equals(_role)) {
+    if (!isAdmin && !isVet)  {
         response.sendRedirect("hospital_dashboard.jsp");
         return;
     }

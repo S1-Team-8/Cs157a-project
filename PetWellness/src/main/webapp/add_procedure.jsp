@@ -13,7 +13,7 @@
     String staffRole = (String) session.getAttribute("staff_role");
     if (staffRole == null) staffRole = "";
     boolean isAdmin = "Admin".equals(staffRole);
-    boolean isVet   = "Veterinarian".equals(staffRole);
+    boolean isVet   = "Veterinarian".equals(staffRole) || "Vet".equals(staffRole);
     if (!isAdmin && !isVet) {
         response.sendRedirect("hospital_dashboard.jsp");
         return;

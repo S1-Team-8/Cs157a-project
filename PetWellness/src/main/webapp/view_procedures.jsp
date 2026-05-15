@@ -13,7 +13,7 @@
     if (staffRole == null) staffRole = "";
     boolean isAdmin   = "Admin".equals(staffRole);
     boolean isManager = "Manager".equals(staffRole);
-    boolean isVet     = "Veterinarian".equals(staffRole);
+    boolean isVet     = "Veterinarian".equals(staffRole) || "Vet".equals(staffRole);
     boolean isTech    = "Technician".equals(staffRole);
     if (!isAdmin && !isManager && !isVet && !isTech) {
         response.sendRedirect("hospital_dashboard.jsp");
