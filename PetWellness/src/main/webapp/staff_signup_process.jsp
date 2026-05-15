@@ -8,9 +8,11 @@
         MessageDigest md = MessageDigest.getInstance("SHA-256");
         byte[] hash = md.digest(password.getBytes("UTF-8"));
         StringBuilder sb = new StringBuilder();
+
         for (byte b : hash) {
             sb.append(String.format("%02x", b));
         }
+
         return sb.toString();
     }
 %>
@@ -31,6 +33,7 @@
             role == null || role.trim().isEmpty() ||
             username == null || username.trim().isEmpty() ||
             password == null || password.trim().isEmpty()) {
+
             response.sendRedirect("staff_signup.jsp?error=1");
             return;
         }
@@ -61,18 +64,26 @@
 
         String hashedPassword = hashPassword(password);
 
-        String insertSql = "INSERT INTO staff (full_name, role, username, password_hash, is_active) VALUES (?, ?, ?, ?, ?)";
+        /*
+            New staff accounts are created as inactive.
+            An Admin must approve/reactivate the account before login.
+        */
+        String insertSql =
+            "INSERT INTO staff " +
+            "(full_name, role, username, password_hash, is_active) " +
+            "VALUES (?, ?, ?, ?, ?)";
+
         insertStmt = conn.prepareStatement(insertSql);
         insertStmt.setString(1, fullName);
         insertStmt.setString(2, role);
         insertStmt.setString(3, username);
         insertStmt.setString(4, hashedPassword);
-        insertStmt.setBoolean(5, true);
+        insertStmt.setBoolean(5, false);
 
         int rows = insertStmt.executeUpdate();
 
         if (rows > 0) {
-            response.sendRedirect("staff_signup.jsp?success=1");
+            response.sendRedirect("staff_signup.jsp?pending=1");
         } else {
             response.sendRedirect("staff_signup.jsp?error=4");
         }

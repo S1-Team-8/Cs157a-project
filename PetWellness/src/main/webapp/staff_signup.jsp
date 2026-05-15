@@ -25,20 +25,26 @@
     <hr class="divider">
 
     <%
-        String error   = request.getParameter("error");
-        String success = request.getParameter("success");
-        if ("1".equals(error)) {
-    %>
-        <div class="alert alert-error">All fields are required.</div>
-    <% } else if ("2".equals(error)) { %>
-        <div class="alert alert-error">That username is already taken. Please choose another.</div>
-    <% } else if ("3".equals(error)) { %>
-        <div class="alert alert-error">Password must be at least 6 characters long.</div>
-    <% } else if ("4".equals(error)) { %>
-        <div class="alert alert-error">Something went wrong. Please try again.</div>
-    <% } else if ("1".equals(success)) { %>
-        <div class="alert alert-success">Staff account created successfully. You can now log in.</div>
-    <% } %>
+    String error   = request.getParameter("error");
+    String success = request.getParameter("success");
+    String pending = request.getParameter("pending");
+
+    if ("1".equals(error)) {
+%>
+    <div class="alert alert-error">All fields are required.</div>
+<% } else if ("2".equals(error)) { %>
+    <div class="alert alert-error">That username is already taken. Please choose another.</div>
+<% } else if ("3".equals(error)) { %>
+    <div class="alert alert-error">Password must be at least 6 characters long.</div>
+<% } else if ("4".equals(error)) { %>
+    <div class="alert alert-error">Something went wrong. Please try again.</div>
+<% } else if ("1".equals(success)) { %>
+    <div class="alert alert-success">Staff account created successfully. You can now log in.</div>
+<% } else if ("1".equals(pending)) { %>
+    <div class="alert alert-success">
+        Staff account created successfully. Please wait for admin approval before logging in.
+    </div>
+<% } %>
 
     <form action="staff_signup_process.jsp" method="post">
 
