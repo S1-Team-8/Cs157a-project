@@ -1,6 +1,7 @@
 # PetWellness
 
-PetWellness is a full-stack veterinary clinic management system built for CS157A. It supports two distinct user types — **Pet Owners** and **Clinic Staff** — each with their own login, dashboard, and feature set.
+PetWellness is a full-stack veterinary clinic management system that supports two distinct user types — **Pet Owners** and **Clinic Staff** — each with their own login, dashboard, and feature set.
+
 
 ---
 
@@ -18,7 +19,7 @@ PetWellness is a full-stack veterinary clinic management system built for CS157A
 
 ## Database
 
-12 tables — exceeds the CS157A minimum of 10.
+12 tables — exceeds the minimum of 10.
 
 | Table | Purpose |
 |---|---|
@@ -169,7 +170,7 @@ PetWellness/
 
 ## Functional Requirements Coverage
 
-14 functional requirements implemented — exceeds the CS157A minimum of 10.
+14 functional requirements implemented — exceeds the minimum of 10.
 
 1. Pet owner registration and login
 2. Pet profile management (add, edit, delete)
